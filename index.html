@@ -320,7 +320,7 @@ footer{background:#5d4645;color:#fff;text-align:center;padding:30px}
   <button class="close" onclick="toggleCart()">×</button>
   <h3>Giỏ hàng</h3>
   <div id="items">Chưa có sản phẩm.</div>
-  <div class="total">Tổng: <span id="total">0</span>đ</div>
+  <div class="total">Tổng: <button type="button" onclick="clearCart()" style="margin:8px 0;padding:7px 12px;border:0;border-radius:8px;cursor:pointer;">Xóa tất cả</button><span id="total">0</span>đ</div>
   <button class="btn" onclick="order()">Đặt hàng</button>
 </div>
 
@@ -499,13 +499,15 @@ footer{background:#5d4645;color:#fff;text-align:center;padding:30px}
 var cart=[];
 function byId(id){return document.getElementById(id)}
 function escapeHtml(v){return String(v).replace(/[&<>"']/g,function(ch){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[ch]})}
-function renderCart(){var count=byId('count'),items=byId('items'),total=byId('total');if(count)count.textContent=String(cart.length);if(!items||!total)return;if(!cart.length){items.innerHTML='Chưa có sản phẩm.';total.textContent='0';return}var sum=0,html='';for(var i=0;i<cart.length;i++){sum+=cart[i].price;html+='<div class="cart-item"><span>'+escapeHtml(cart[i].name)+'</span><span>'+cart[i].price.toLocaleString('vi-VN')+'đ</span></div>'}items.innerHTML=html;total.textContent=sum.toLocaleString('vi-VN')}
+function renderCart(){var count=byId('count'),items=byId('items'),total=byId('total');if(count)count.textContent=String(cart.length);if(!items||!total)return;if(!cart.length){items.innerHTML='Chưa có sản phẩm.';total.textContent='0';return}var sum=0,html='';for(var i=0;i<cart.length;i++){sum+=cart[i].price;html+='<div class="cart-item"><span>'+escapeHtml(cart[i].name)+'</span><span>'+cart[i].price.toLocaleString('vi-VN')+'đ <button type="button" class="remove-cart-item" data-index="'+i+'" style="margin-left:8px;padding:4px 9px;border:0;border-radius:8px;cursor:pointer;">Xóa</button></span></div>'}items.innerHTML=html;total.textContent=sum.toLocaleString('vi-VN')}
 function addToCart(name,price){cart.push({name:String(name),price:Number(price)||0});renderCart();var box=byId('cartBox');if(box)box.style.display='block'}
+function removeFromCart(index){index=Number(index);if(index>=0&&index<cart.length){cart.splice(index,1);renderCart()}}
+function clearCart(){cart.length=0;renderCart()}
 window.add=addToCart;
 window.toggleCart=function(){var box=byId('cartBox');if(box)box.style.display=box.style.display==='block'?'none':'block'};
-window.order=function(){if(!cart.length){alert('Vui lòng chọn sản phẩm trước.');return}alert('Demo đặt hàng: Love Your Form đã nhận yêu cầu!')};
+window.removeFromCart=removeFromCart;window.clearCart=clearCart;window.order=function(){if(!cart.length){alert('Vui lòng chọn sản phẩm trước.');return}alert('Demo đặt hàng: Love Your Form đã nhận yêu cầu!')};
 window.contact=function(){alert('CSKH Love Your Form\nHotline: 0900 123 456\nEmail: support@loveyourform.vn')};
-function bindButtons(){var buttons=document.querySelectorAll('button[onclick^="add("]');for(var i=0;i<buttons.length;i++){(function(btn){var code=btn.getAttribute('onclick')||'';var m=code.match(/^add\(['"]([\s\S]*?)['"]\s*,\s*([0-9.]+)\)\s*;?$/);if(!m)return;btn.type='button';btn.onclick=function(ev){if(ev)ev.preventDefault();addToCart(m[1],Number(m[2]));return false}})(buttons[i])}renderCart()}
+function bindButtons(){var buttons=document.querySelectorAll('button[onclick^="add("]');for(var i=0;i<buttons.length;i++){(function(btn){var code=btn.getAttribute('onclick')||'';var m=code.match(/^add\(['"]([\s\S]*?)['"]\s*,\s*([0-9.]+)\)\s*;?$/);if(!m)return;btn.type='button';btn.onclick=function(ev){if(ev)ev.preventDefault();addToCart(m[1],Number(m[2]));return false}})(buttons[i])}var items=byId('items');if(items){items.addEventListener('click',function(ev){var btn=ev.target.closest('.remove-cart-item');if(btn){removeFromCart(btn.getAttribute('data-index'))}})}renderCart()}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',bindButtons);else bindButtons();
 })();
 </script>
