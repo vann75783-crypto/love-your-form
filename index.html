@@ -495,59 +495,18 @@ footer{background:#5d4645;color:#fff;text-align:center;padding:30px}
 
 <script>
 (function(){
-  const cart=[];
-  const $=id=>document.getElementById(id);
-
-  function render(){
-    const count=$("count");
-    const items=$("items");
-    const total=$("total");
-    if(count) count.textContent=String(cart.length);
-    if(!items || !total) return;
-    if(!cart.length){
-      items.innerHTML="Chưa có sản phẩm.";
-      total.textContent="0";
-      return;
-    }
-    let sum=0;
-    items.innerHTML=cart.map(x=>{
-      sum+=x.price;
-      const safe=String(x.name).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"}[c]));
-      return '<div class="cart-item"><span>'+safe+'</span><span>'+x.price.toLocaleString('vi-VN')+'đ</span></div>';
-    }).join('');
-    total.textContent=sum.toLocaleString('vi-VN');
-  }
-
-  window.add=function(name,price){
-    cart.push({name:String(name),price:Number(price)||0});
-    render();
-    const box=$("cartBox");
-    if(box) box.style.display="block";
-  };
-  window.toggleCart=function(){
-    const box=$("cartBox");
-    if(box) box.style.display=box.style.display==="block"?"none":"block";
-  };
-  window.order=function(){
-    if(!cart.length){alert("Vui lòng chọn sản phẩm trước.");return;}
-    alert("Demo đặt hàng: Love Your Form đã nhận yêu cầu!");
-  };
-  window.contact=function(){alert("CSKH Love Your Form\nHotline: 0900 123 456\nEmail: support@loveyourform.vn");};
-
-  // Bắt click trực tiếp, không phụ thuộc regex onclick
-  document.addEventListener('click',function(e){
-    const btn=e.target.closest('button');
-    if(!btn) return;
-    const code=btn.getAttribute('onclick')||'';
-    const m=code.match(/^\s*add\s*\(\s*(['"])(.*?)\1\s*,\s*([0-9.]+)\s*\)\s*;?\s*$/);
-    if(m){
-      e.preventDefault();
-      e.stopImmediatePropagation();
-      window.add(m[2],Number(m[3]));
-    }
-  },true);
-
-  render();
+'use strict';
+var cart=[];
+function byId(id){return document.getElementById(id)}
+function escapeHtml(v){return String(v).replace(/[&<>"']/g,function(ch){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[ch]})}
+function renderCart(){var count=byId('count'),items=byId('items'),total=byId('total');if(count)count.textContent=String(cart.length);if(!items||!total)return;if(!cart.length){items.innerHTML='Chưa có sản phẩm.';total.textContent='0';return}var sum=0,html='';for(var i=0;i<cart.length;i++){sum+=cart[i].price;html+='<div class="cart-item"><span>'+escapeHtml(cart[i].name)+'</span><span>'+cart[i].price.toLocaleString('vi-VN')+'đ</span></div>'}items.innerHTML=html;total.textContent=sum.toLocaleString('vi-VN')}
+function addToCart(name,price){cart.push({name:String(name),price:Number(price)||0});renderCart();var box=byId('cartBox');if(box)box.style.display='block'}
+window.add=addToCart;
+window.toggleCart=function(){var box=byId('cartBox');if(box)box.style.display=box.style.display==='block'?'none':'block'};
+window.order=function(){if(!cart.length){alert('Vui lòng chọn sản phẩm trước.');return}alert('Demo đặt hàng: Love Your Form đã nhận yêu cầu!')};
+window.contact=function(){alert('CSKH Love Your Form\nHotline: 0900 123 456\nEmail: support@loveyourform.vn')};
+function bindButtons(){var buttons=document.querySelectorAll('button[onclick^="add("]');for(var i=0;i<buttons.length;i++){(function(btn){var code=btn.getAttribute('onclick')||'';var m=code.match(/^add\(['"]([\s\S]*?)['"]\s*,\s*([0-9.]+)\)\s*;?$/);if(!m)return;btn.type='button';btn.onclick=function(ev){if(ev)ev.preventDefault();addToCart(m[1],Number(m[2]));return false}})(buttons[i])}renderCart()}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',bindButtons);else bindButtons();
 })();
 </script>
 </body>
