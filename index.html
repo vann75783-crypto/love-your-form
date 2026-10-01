@@ -482,7 +482,7 @@ footer{background:#5d4645;color:#fff;text-align:center;padding:30px}
   </div>
   <div class="support-info">
     <strong>Hotline:</strong> 0900 123 456 &nbsp; | &nbsp;
-    <strong>Email:</strong> support@loveyourform.vn<br>
+    <strong>Email:</strong> loveyourform.vn@gmail.com<br>
     <strong>Thời gian hỗ trợ:</strong> 08:00 – 21:00 mỗi ngày
   </div>
 </section>
@@ -506,7 +506,7 @@ function clearCart(){cart.length=0;renderCart()}
 window.add=addToCart;
 window.toggleCart=function(){var box=byId('cartBox');if(box)box.style.display=box.style.display==='block'?'none':'block'};
 window.removeFromCart=removeFromCart;window.clearCart=clearCart;window.order=function(){if(!cart.length){alert('Vui lòng chọn sản phẩm trước.');return}alert('Demo đặt hàng: Love Your Form đã nhận yêu cầu!')};
-window.contact=function(){alert('CSKH Love Your Form\nHotline: 0900 123 456\nEmail: support@loveyourform.vn')};
+window.contact=function(){alert('CSKH Love Your Form\nHotline: 0900 123 456\nEmail: loveyourform.vn@gmail.com')};
 function bindButtons(){var buttons=document.querySelectorAll('button[onclick^="add("]');for(var i=0;i<buttons.length;i++){(function(btn){var code=btn.getAttribute('onclick')||'';var m=code.match(/^add\(['"]([\s\S]*?)['"]\s*,\s*([0-9.]+)\)\s*;?$/);if(!m)return;btn.type='button';btn.onclick=function(ev){if(ev)ev.preventDefault();addToCart(m[1],Number(m[2]));return false}})(buttons[i])}var items=byId('items');if(items){items.addEventListener('click',function(ev){var btn=ev.target.closest('.remove-cart-item');if(btn){removeFromCart(btn.getAttribute('data-index'))}})}renderCart()}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',bindButtons);else bindButtons();
 })();
