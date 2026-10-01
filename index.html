@@ -300,6 +300,26 @@ footer{background:#5d4645;color:#fff;text-align:center;padding:30px}
 }
 </style>
 
+
+<style id="checkout-v1">
+#checkoutModal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.48);z-index:10000;padding:20px;overflow:auto}
+.checkout-panel{width:100%;max-width:520px;margin:30px auto;background:#fff;border-radius:20px;padding:24px;box-shadow:0 12px 40px rgba(0,0,0,.25);position:relative}
+.checkout-panel h3{margin:0 0 8px;color:#9d5368;font-family:Georgia,serif;font-size:28px}
+.checkout-panel .checkout-note{margin:0 0 18px;color:#6b5957;font-size:14px;line-height:1.5}
+.checkout-close{position:absolute;right:14px;top:10px;border:0;background:none;font-size:30px;line-height:1;cursor:pointer;color:#6b5957}
+.checkout-summary{background:#fff8f6;border:1px solid #ead5d8;border-radius:12px;padding:12px;margin-bottom:18px;font-size:14px;line-height:1.6}
+.checkout-field{margin-bottom:14px}
+.checkout-field label{display:block;font-weight:bold;margin-bottom:6px;color:#4b3a38}
+.checkout-field input,.checkout-field textarea,.checkout-field select{width:100%;padding:11px 12px;border:1px solid #d9c8c6;border-radius:10px;font:inherit;outline:none;background:#fff}
+.checkout-field textarea{min-height:80px;resize:vertical}
+.checkout-field input:focus,.checkout-field textarea:focus,.checkout-field select:focus{border-color:#ad6075}
+.checkout-required{color:#ad6075}
+.checkout-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:18px}
+.checkout-cancel{border:1px solid #d9c8c6;background:#fff;color:#594544;padding:11px 18px;border-radius:22px;cursor:pointer}
+.checkout-submit{border:0;background:#ad6075;color:#fff;padding:11px 20px;border-radius:22px;cursor:pointer}
+@media(max-width:480px){.checkout-panel{margin:10px auto;padding:20px}.checkout-actions{flex-direction:column}.checkout-actions button{width:100%}}
+</style>
+
 </head>
 <body>
 
@@ -322,6 +342,46 @@ footer{background:#5d4645;color:#fff;text-align:center;padding:30px}
   <div id="items">Chưa có sản phẩm.</div>
   <div class="total">Tổng: <button type="button" onclick="clearCart()" style="margin:8px 0;padding:7px 12px;border:0;border-radius:8px;cursor:pointer;">Xóa tất cả</button><span id="total">0</span>đ</div>
   <button class="btn" onclick="order()">Đặt hàng</button>
+</div>
+
+
+<div id="checkoutModal" aria-hidden="true">
+  <div class="checkout-panel">
+    <button type="button" class="checkout-close" onclick="closeCheckout()" aria-label="Đóng">×</button>
+    <h3>Thông tin đặt hàng</h3>
+    <p class="checkout-note">Vui lòng nhập đầy đủ thông tin để Love Your Form xác nhận và giao hàng cho bạn.</p>
+    <div class="checkout-summary"><strong>Đơn hàng:</strong><div id="checkoutSummary">-</div><strong>Tổng tiền: <span id="checkoutTotal">0đ</span></strong></div>
+    <form id="checkoutForm">
+      <div class="checkout-field">
+        <label for="customerName">Họ và tên <span class="checkout-required">*</span></label>
+        <input id="customerName" name="customerName" type="text" required autocomplete="name" placeholder="Nhập họ và tên">
+      </div>
+      <div class="checkout-field">
+        <label for="customerPhone">Số điện thoại <span class="checkout-required">*</span></label>
+        <input id="customerPhone" name="customerPhone" type="tel" required autocomplete="tel" pattern="[0-9 +().-]{9,15}" placeholder="Nhập số điện thoại">
+      </div>
+      <div class="checkout-field">
+        <label for="customerAddress">Địa chỉ nhận hàng <span class="checkout-required">*</span></label>
+        <textarea id="customerAddress" name="customerAddress" required autocomplete="street-address" placeholder="Số nhà, đường, phường/xã, quận/huyện, tỉnh/thành"></textarea>
+      </div>
+      <div class="checkout-field">
+        <label for="paymentMethod">Phương thức thanh toán <span class="checkout-required">*</span></label>
+        <select id="paymentMethod" name="paymentMethod" required>
+          <option value="">-- Chọn phương thức --</option>
+          <option>Thanh toán khi nhận hàng (COD)</option>
+          <option>Chuyển khoản ngân hàng</option>
+        </select>
+      </div>
+      <div class="checkout-field">
+        <label for="customerNote">Ghi chú</label>
+        <textarea id="customerNote" name="customerNote" placeholder="Ví dụ: giao giờ hành chính, gọi trước khi giao..."></textarea>
+      </div>
+      <div class="checkout-actions">
+        <button type="button" class="checkout-cancel" onclick="closeCheckout()">Quay lại</button>
+        <button type="submit" class="checkout-submit">Xác nhận đặt hàng</button>
+      </div>
+    </form>
+  </div>
 </div>
 
 <section class="hero" id="home">
@@ -505,10 +565,35 @@ function removeFromCart(index){index=Number(index);if(index>=0&&index<cart.lengt
 function clearCart(){cart.length=0;renderCart()}
 window.add=addToCart;
 window.toggleCart=function(){var box=byId('cartBox');if(box)box.style.display=box.style.display==='block'?'none':'block'};
-window.removeFromCart=removeFromCart;window.clearCart=clearCart;window.order=function(){if(!cart.length){alert('Vui lòng chọn sản phẩm trước.');return}alert('Demo đặt hàng: Love Your Form đã nhận yêu cầu!')};
+window.removeFromCart=removeFromCart;window.clearCart=clearCart;
+window.closeCheckout=function(){var modal=byId('checkoutModal');if(modal){modal.style.display='none';modal.setAttribute('aria-hidden','true')}};
+window.order=function(){
+  if(!cart.length){alert('Vui lòng chọn sản phẩm trước.');return}
+  var modal=byId('checkoutModal'),summary=byId('checkoutSummary'),total=byId('checkoutTotal');
+  if(!modal)return;
+  var sum=0,html='';
+  for(var i=0;i<cart.length;i++){sum+=cart[i].price;html+='<div>'+escapeHtml(cart[i].name)+' — '+cart[i].price.toLocaleString('vi-VN')+'đ</div>'}
+  summary.innerHTML=html;total.textContent=sum.toLocaleString('vi-VN')+'đ';
+  modal.style.display='block';modal.setAttribute('aria-hidden','false');
+};
+function submitOrder(ev){
+  ev.preventDefault();
+  var form=byId('checkoutForm');
+  if(!form.checkValidity()){form.reportValidity();return}
+  var name=byId('customerName').value.trim(),phone=byId('customerPhone').value.trim(),address=byId('customerAddress').value.trim(),payment=byId('paymentMethod').value,note=byId('customerNote').value.trim();
+  var sum=0,lines=[];
+  for(var i=0;i<cart.length;i++){sum+=cart[i].price;lines.push('- '+cart[i].name+': '+cart[i].price.toLocaleString('vi-VN')+'đ')}
+  var subject='Đơn hàng mới - Love Your Form';
+  var body='THÔNG TIN ĐẶT HÀNG%0D%0A%0D%0AHọ tên: '+encodeURIComponent(name)+'%0D%0ASố điện thoại: '+encodeURIComponent(phone)+'%0D%0AĐịa chỉ: '+encodeURIComponent(address)+'%0D%0AThanh toán: '+encodeURIComponent(payment)+'%0D%0AGhi chú: '+encodeURIComponent(note||'Không có')+'%0D%0A%0D%0ASản phẩm:%0D%0A'+encodeURIComponent(lines.join('\n'))+'%0D%0A%0D%0ATổng tiền: '+encodeURIComponent(sum.toLocaleString('vi-VN')+'đ');
+  alert('Đã nhận thông tin đặt hàng. Bạn sẽ được chuyển sang email để gửi đơn đến Love Your Form.');
+  window.location.href='mailto:loveyourform.vn@gmail.com?subject='+encodeURIComponent(subject)+'&body='+body;
+}
+
 window.contact=function(){alert('CSKH Love Your Form\nHotline: 0900 123 456\nEmail: loveyourform.vn@gmail.com')};
 function bindButtons(){var buttons=document.querySelectorAll('button[onclick^="add("]');for(var i=0;i<buttons.length;i++){(function(btn){var code=btn.getAttribute('onclick')||'';var m=code.match(/^add\(['"]([\s\S]*?)['"]\s*,\s*([0-9.]+)\)\s*;?$/);if(!m)return;btn.type='button';btn.onclick=function(ev){if(ev)ev.preventDefault();addToCart(m[1],Number(m[2]));return false}})(buttons[i])}var items=byId('items');if(items){items.addEventListener('click',function(ev){var btn=ev.target.closest('.remove-cart-item');if(btn){removeFromCart(btn.getAttribute('data-index'))}})}renderCart()}
-if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',bindButtons);else bindButtons();
+if(document.readyState==='loading'){
+  document.addEventListener('DOMContentLoaded',function(){bindButtons();var f=byId('checkoutForm');if(f)f.addEventListener('submit',submitOrder)});
+}else{bindButtons();var f=byId('checkoutForm');if(f)f.addEventListener('submit',submitOrder)}
 })();
 </script>
 </body>
